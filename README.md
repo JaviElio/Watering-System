@@ -1,5 +1,5 @@
 # Watering-System
-Watering system with arduino
+Watering system with Attiny85
 
 
 BILL OF MATERIALS:
