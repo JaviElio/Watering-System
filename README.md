@@ -12,4 +12,4 @@ BILL OF MATERIALS:
 
 PICTURES:
 
-![Box](https://github.com/Perretxiko/Watering-System/blob/master/IMG_20170227_194539_HDR.jpg)
+![Box](./IMG_20170227_194539_HDR.jpg)
