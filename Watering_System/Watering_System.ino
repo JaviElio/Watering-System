@@ -1,9 +1,9 @@
-/*
-  Proyecto: Riego Automatico V1.0    27-12-2016
+/**********************************************
+  Project: Watering System V1.0       27-12-2016
   JEC
-*/
+***********************************************/
 
-#include <TinyWireM.h>                      // Libreria para comunicacion i2c Attiny85
+#include <TinyWireM.h>                      // Attiny i2c Library 
 #include <SoftwareSerial.h>                 // Libreria para crear puerto serie por software
 #include <I2CSoilMoistureSensor.h>          // Libreria para comunicación i2c con sensor humedad
 
