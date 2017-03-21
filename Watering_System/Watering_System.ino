@@ -4,21 +4,21 @@
 ***********************************************/
 
 #include <TinyWireM.h>                      // Attiny i2c Library 
-#include <SoftwareSerial.h>                 // Libreria para crear puerto serie por software
-#include <I2CSoilMoistureSensor.h>          // Libreria para comunicación i2c con sensor humedad
+#include <SoftwareSerial.h>                 // Serial communication Library
+#include <I2CSoilMoistureSensor.h>          // I2C moisture sensor library
 
-#include <avr/sleep.h>                      // Libreria para gestion de energia
-#include <avr/wdt.h>                        // Libreria para uso del watchdog
-#include <avr/interrupt.h>                  // Libreria para interrupciones
+#include <avr/sleep.h>                      // Power managment library
+#include <avr/wdt.h>                        // Watchdog library
+#include <avr/interrupt.h>                  // Interrupts managment library
 
-#define SENSOR PB3                          // Activacion sensor humedad
-#define E_VALVE PB1                         // Activacion electrovalvula
+#define SENSOR PB3                          // Moisture sensor activaction output
+#define E_VALVE PB1                         // Solenoid Valve activation output
 
 
-// Crear un puerto serie
+// Create a new serial port
 SoftwareSerial puertoSerie(-1, 4);
 
-// Crear objeto sensor
+// New sensor object
 I2CSoilMoistureSensor sensor;
 
 
