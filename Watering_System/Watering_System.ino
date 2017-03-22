@@ -11,9 +11,9 @@
 #include <avr/wdt.h>                        // Watchdog library
 #include <avr/interrupt.h>                  // Interrupts managment library
 
+
 #define SENSOR PB3                          // Moisture sensor activaction output
 #define E_VALVE PB1                         // Solenoid Valve activation output
-
 
 // Create a the serial port
 SoftwareSerial serialPort(-1, 4);
@@ -24,7 +24,7 @@ I2CSoilMoistureSensor sensor;
 
 // Variables
 unsigned int nLight;                      // Measured light value
-unsigned int nLightMax = 40000;           // Max light to water
+unsigned int nLightMax = 40000;              // Max light to water
 unsigned int nTemp;                       // Measured temp value
 unsigned int nTempMin  = 40;              // Min. temp to water
 unsigned int nTempMed  = 80;              
@@ -79,11 +79,6 @@ void loop() {
 
       // If "dark" and tempeture is higher that 4ºC then water
       if ((nLight > nLightMax) && nTemp > nTempMed) {
-        nState = 20;
-      }
-
-      // If "light" and temperature between 4ºC and 8ºC then water
-      else if ((nLight < nLightMax) && (nTemp > nTempMin && nTemp <= nTempMed)) {
         nState = 20;
       }
 
