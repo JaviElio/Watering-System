@@ -15,40 +15,38 @@
 #define E_VALVE PB1                         // Solenoid Valve activation output
 
 
-// Create a new serial port
-SoftwareSerial puertoSerie(-1, 4);
+// Create a the serial port
+SoftwareSerial serialPort(-1, 4);
 
 // New sensor object
 I2CSoilMoistureSensor sensor;
 
 
 // Variables
-unsigned int nLight;                      // Valor de luz medido
-unsigned int nLightMax = 40000;           // Valor de luz maximo para regar
-unsigned int nTemp;                       // Valor de temperatura medido
-unsigned int nTempMin  = 40;              // Valor de temperatura mínimo para regar
-unsigned int nTempMed  = 80;              // Valor de temperatura "regar con luz"
-unsigned int nMoisture;                   // Valor de humedad medido
-unsigned int nMoistureMin = 325;          // Valor de humedad mínimo para regar
-unsigned int nMoistureMax = 400;          // Valor de humedad máximo para regar
-unsigned int nSegundosSleepCorto = 300;    // Duración de sleep "corto" en segundos 5min=300s
-unsigned int nSegundosSleepLargo = 3600;     // Duración de sleep "largo" en segundos 1h=3600s
-unsigned int nWateringTime= 30000;         // Watering time (ms) 
+unsigned int nLight;                      // Measured light value
+unsigned int nLightMax = 40000;           // Max light to water
+unsigned int nTemp;                       // Measured temp value
+unsigned int nTempMin  = 40;              // Min. temp to water
+unsigned int nTempMed  = 80;              
+unsigned int nMoisture;                   // Measured moist value
+unsigned int nMoistureMin = 325;          // Min. moist to water
+unsigned int nMoistureMax = 400;          // Max. moist to water
+unsigned int nShortSleep = 300;           // Short sleep lenght in seconds 300s=5min
+unsigned int nLongSleep = 3600;           // Long sleep lenght in seconds 3600s=1h
+unsigned int nWateringTime= 30000;        // Watering time (ms) 
 
-unsigned int nState = 0;                  // indice "Switch"
-bool bOldValvula = 0;                     // Estado anterior de la válvula
-unsigned int nRepeticiones = 0;           // Veces que se ha regado
-unsigned int nRepeticionesMax = 5;        // Repeticiones máximas
+unsigned int nState = 0;                  // "Switch" index
+bool bOldState = 0;                       // Previous valve state
+unsigned int nWateringTimes = 0;          // watering times
+unsigned int nMaxWateringTimes = 5;       // Max. watering times
 
 
 void setup() {
 
-  configurePins();                   // Configurar pines
-
-  TinyWireM.begin();                 // Iniciar comunicacion i2c
-  puertoSerie.begin(9600);           // Iniciar puerto serie
-
-  setupPowerSaving();                // Configurar ahorro de energia
+  configurePins();                        // Configure I/O
+  TinyWireM.begin();                      // Start i2c communication
+  serialPort.begin(9600);                 // Start serial port
+  setupPowerSaving();                     // Setup power save
 
 }
 
@@ -57,107 +55,109 @@ void loop() {
 
   switch (nState) {
 
-    case 0: // Encender sensor
+    case 0: // Switch on moist sensor
 
-      puertoSerie.println("Encendiendo sensor (case 0)");
+      serialPort.println("Switching on moist sensor (case 0)");
       digitalWrite(SENSOR, true);
       delay(1000);
-      sensor.begin();                                         // Iniciar sensor
+      sensor.begin();                                                     // Start sensor
       delay(2000);
 
       nState = 10;
       break;
 
-    case 10:  // Medir luz
+    case 10:  // Light measurement
 
-      puertoSerie.print("Midiendo luz (case 10):   ");
+      serialPort.print("Measuring light (case 10):   ");
       nLight = sensor.getLight(true);
-      puertoSerie.println(nLight);
+      serialPort.println(nLight);
 
-      puertoSerie.print("Midiendo temperatura (case 10):   ");
+      serialPort.print("Measuring temperature (case 10):   ");
       nTemp = sensor.getTemperature();
-      puertoSerie.println(nTemp);
+      serialPort.println(nTemp);
 
 
-      // Si "oscuro" y temperatura mayor que 4º se riega
+      // If "dark" and tempeture is higher that 4ºC then water
       if ((nLight > nLightMax) && nTemp > nTempMed) {
         nState = 20;
       }
 
-      // Si "luz" y temperatura entre 4ºC y 8ºC se riega
+      // If "light" and temperature between 4ºC and 8ºC then water
       else if ((nLight < nLightMax) && (nTemp > nTempMin && nTemp <= nTempMed)) {
         nState = 20;
       }
 
+      // No watering then go to sleep
       else {
-        // No regar -> sleep
-        nRepeticiones = 0;
-        bOldValvula = false;
+        
+        nWateringTimes = 0;
+        bOldState = false;
         nState = 200;
+        
       }
 
       break;
 
-    case 20: // Leer humedad
+    case 20: // Measure moist
 
-      puertoSerie.print("Midiendo humedad (case 20):   ");
+      serialPort.print("Measuring moist (case 20):   ");
       nMoisture = sensor.getCapacitance();
-      puertoSerie.println(nMoisture);
+      serialPort.println(nMoisture);
 
 
-      if ((nMoisture < nMoistureMin) || (nMoisture < nMoistureMax) && bOldValvula) {
+      if ((nMoisture < nMoistureMin) || (nMoisture < nMoistureMax) && bOldState) {
 
-        nRepeticiones++;
+        nWateringTimes++;
 
-        if (nRepeticiones > nRepeticionesMax) {
-          puertoSerie.println("Max repeticiones alcanzadas!!!!");
-          nRepeticiones = 0;
-          bOldValvula = false;
+        if (nWateringTimes > nMaxWateringTimes) {
+          serialPort.println("Max watering times reached!");
+          nWateringTimes = 0;
+          bOldState = false;
           nState = 200;
         }
         else {
-          bOldValvula = true;
+          bOldState = true;
           nState = 30;
         }
       }
 
-      if ((nMoisture > nMoistureMax) || (nMoisture > nMoistureMin) && !bOldValvula) {
+      if ((nMoisture > nMoistureMax) || (nMoisture > nMoistureMin) && !bOldState) {
 
-        nRepeticiones = 0;
-        bOldValvula = false;
+        nWateringTimes = 0;
+        bOldState = false;
         nState = 200;
       }
 
       break;
 
-    case 30:  // Regar
+    case 30:  // Water
 
-      puertoSerie.println("Regando (case 30)");
-      digitalWrite(SENSOR, false);    // Apagar sensor
-      digitalWrite(E_VALVE, true);    // Encender electroValvula
+      serialPort.println("Watering (case 30)");
+      digitalWrite(SENSOR, false);                // Switch off moist sensor
+      digitalWrite(E_VALVE, true);                // Switch on solenoid valve
       delay(nWateringTime);
-      digitalWrite(E_VALVE, false);   // Apagar electrovalvula
+      digitalWrite(E_VALVE, false);               // Switch off solenoid valve
 
       nState = 100;
       break;
 
 
-    case 100:   // Sleep "corto"
+    case 100:   // Short sleep
 
-      puertoSerie.println("Sleep corto (case100)");
+      serialPort.println("Short sleep (case100)");
 
-      digitalWrite(SENSOR, false);    // Apagar sensor
-      sleep(nSegundosSleepCorto/8);                       // dormir 1x8segundos = 8 segundos
+      digitalWrite(SENSOR, false);                // Switch off sesorr
+      sleep(nShortSleep/8);                       // Sleep "nShortSleep" seconds
 
       nState = 0;
       break;
 
-    case 200:   // Sleep "largo"
+    case 200:   // Long sleep
 
-      puertoSerie.println("Sleep largo (case200)");
+      serialPort.println("Long sleep (case200)");
 
-      digitalWrite(SENSOR, false);    // Apagar sensor
-      sleep(nSegundosSleepLargo/8);                       // dormir 2x8segundo = 16 segundos
+      digitalWrite(SENSOR, false);                // Switch off sensor
+      sleep(nLongSleep/8);                        // Sleep "nLongSleep" seconds
 
       nState = 0;
       break;
@@ -171,81 +171,67 @@ void loop() {
 
 
 void setupWatchdog() {
-  cli();
+  cli();                                            // Disable global interrupts
   // Set watchdog timer in interrupt mode
   // allow changes, disable reset
   WDTCR = bit (WDCE) | bit (WDE);
   // set interrupt mode and an interval
-  WDTCR = bit (WDIE) | bit (WDP3) | bit (WDP0);    // set WDIE, and 8 seconds delay
-  sei(); // Enable global interrupts
+  WDTCR = bit (WDIE) | bit (WDP3) | bit (WDP0);     // set WDIE, and 8 seconds delay
+  sei();                                            // Enable global interrupts
 }
 
 
 void sleep(int times) {
 
-  setupWatchdog();                                // Configurar y activar WDT
+  setupWatchdog();                                  // Configure and activate Watchdog
 
   for (int i = 0; i < times; i++) {
 
-    cli();                                       // Deshabilitar las interrupciones por si acaso
-    sleep_enable();                              // Habilitar sleep
+    cli();                                          // Disable interruptions just in case
+    sleep_enable();                                 // Enable sleep
 
 
     //    sleep_bod_disable();                       // Deshabilitar BOD durante sleep
     //    MCUCR |= _BV(BODS) | _BV(BODSE);           //disable brownout detection during sleep
     //    MCUCR &=~ _BV(BODSE);
 
-    sei();                                       // Habilitar interrupciones
-    sleep_cpu();                                 // Dormir....
-    sleep_disable();                             // Deshabilitar sleep una vez despierto.
+    sei();                                          // Enable interruptions
+    sleep_cpu();                                    // Go to sleep
+    sleep_disable();                                // When cpu is awake, disable sleep
 
   }
 
-  wdt_disable();                                // Deshabilitar WDT para no más interrupciones
+  wdt_disable();                                    // Disable watchdog in order to not have more WDT interruptions
 }
 
 
 void setupPowerSaving() {
 
-  // Desconectar ADC
-  ADCSRA &= ~(1 << ADEN);
-
-  // Modo "sleep"
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-
-  // Desconectar modulos Timer1, adc
-  // PRR=B1001;
+  ADCSRA &= ~(1 << ADEN);                           // Disable ADC
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);              // Configure sleep mode
+  
 }
 
 void configurePins() {
 
-  pinMode(PB0, OUTPUT);               // i2c SDA
-  pinMode(PB1, OUTPUT);                 // E_VALVE
-  pinMode(PB2, OUTPUT);              // i2c SCL
-  pinMode(PB3, OUTPUT);                 // SENSOR
-  //pinMode(PB4, OUTPUT);               // Tx
-  //pinMode(PB5, OUTPUT);               // Rx
+  pinMode(PB0, OUTPUT);                              // i2c SDA
+  pinMode(PB1, OUTPUT);                              // E_VALVE
+  pinMode(PB2, OUTPUT);                              // i2c SCL
+  pinMode(PB3, OUTPUT);                              // SENSOR
+  //pinMode(PB4, OUTPUT);                            // Tx
+  //pinMode(PB5, OUTPUT);                            // Rx
 
-  digitalWrite(PB0, false);           // i2c SDA
-  digitalWrite(PB1, false);             // E_VALVE
-  digitalWrite(PB2, false);           // i2c SCL
-  digitalWrite(PB3, false);             // SENSOR
-  //digitalWrite(PB4, false);           // Tx
-  //digitalWrite(PB5, false);           // Rx
+  digitalWrite(PB0, false);                          // i2c SDA
+  digitalWrite(PB1, false);                          // E_VALVE
+  digitalWrite(PB2, false);                          // i2c SCL
+  digitalWrite(PB3, false);                          // SENSOR
+  //digitalWrite(PB4, false);                        // Tx
+  //digitalWrite(PB5, false);                        // Rx
 
 }
 
 ISR(WDT_vect) {
 
-  // Nada
+  // Nothing to do, just wake up
 
 }
-
-
-
-
-
-
-
-
-
