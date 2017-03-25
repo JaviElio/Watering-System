@@ -66,7 +66,7 @@ void loop() {
       nState = 10;
       break;
 
-    case 10:  // Light measurement
+    case 10:  // Light and temperature measurement
 
       serialPort.print("Measuring light (case 10):   ");
       nLight = sensor.getLight(true);
