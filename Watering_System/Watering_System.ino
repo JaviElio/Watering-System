@@ -27,7 +27,6 @@ unsigned int nLight;                      // Measured light value
 unsigned int nLightMax = 40000;              // Max light to water
 unsigned int nTemp;                       // Measured temp value
 unsigned int nTempMin  = 40;              // Min. temp to water
-unsigned int nTempMed  = 80;              
 unsigned int nMoisture;                   // Measured moist value
 unsigned int nMoistureMin = 325;          // Min. moist to water
 unsigned int nMoistureMax = 400;          // Max. moist to water
@@ -78,7 +77,7 @@ void loop() {
 
 
       // If "dark" and tempeture is higher that 4ºC then water
-      if ((nLight > nLightMax) && nTemp > nTempMed) {
+      if ((nLight > nLightMax) && nTemp > nTempMin) {
         nState = 20;
       }
 
