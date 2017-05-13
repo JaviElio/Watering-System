@@ -32,7 +32,7 @@ unsigned int nMoistureMin = 325;          // Min. moist to water
 unsigned int nMoistureMax = 400;          // Max. moist to water
 unsigned int nShortSleep = 300;           // Short sleep lenght in seconds 300s=5min
 unsigned int nLongSleep = 3600;           // Long sleep lenght in seconds 3600s=1h
-unsigned int nWateringTime= 30000;        // Watering time (ms) 
+unsigned int nWateringTime= 10000;        // Watering time (ms) 
 
 unsigned int nState = 0;                  // "Switch" index
 bool bOldState = 0;                       // Previous valve state
