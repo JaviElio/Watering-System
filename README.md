@@ -3,7 +3,7 @@ Watering system with Attiny85 and i2c moisture sensor.
 
 
 
-FEATURES:
+**FEATURES:**
 
  - Measures soil moisture, light and temperature.
  - It waters only at night.
@@ -15,7 +15,7 @@ FEATURES:
 
 
 
-BILL OF MATERIALS:
+**BILL OF MATERIALS:**
 
  - Valve: https://www.aliexpress.com/item/Free-shipping-Plastic-solenoid-valve-12VDC-for-drink-water-air-6-35mm-1-4-Quick-plug/1411672083.html?spm=2114.13010608.0.0.Ew7MCd
  
@@ -28,7 +28,7 @@ BILL OF MATERIALS:
  - 2N7000
  - BS170
 
-PICTURES:
+**PICTURES:**
 
 
 <img src="images/IMG_20170227.jpg" width=400> <img src="images/IMG_20170725_162849_HDR.jpg" width=400>
