@@ -1,6 +1,15 @@
 # Watering-System
-Watering system with Attiny85
+Watering system with Attiny85 and i2c moisture sensor.
 
+FEATURES:
+
+ - Measures soil moisture, light and temperature.
+ - It waters only at night.
+ - It doesn't water if temperature is below 4ºC.
+ - It waters depending on a preset value and a hysteresis.
+
+ - It takes measurements every hour, then microcontroller goes to deep sleep.
+ - If it irrigates, then checks moisture again after five minutes.
 
 BILL OF MATERIALS:
 
