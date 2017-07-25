@@ -26,4 +26,4 @@ BILL OF MATERIALS:
 PICTURES:
 
 
-![Box](./IMG_20170227.jpg)
+<img src="IMG_20170227.jpg" width=400>
