@@ -26,4 +26,6 @@ BILL OF MATERIALS:
 PICTURES:
 
 
-<img src="IMG_20170227.jpg" width=400>
+<img src="images/IMG_20170227.jpg" width=400> <img src="images/IMG_20170725_162849_HDR.jpg" width=400>
+
+<img src="images/IMG_20170725_162759_HDR.jpg" width=400>
